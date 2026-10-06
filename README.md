@@ -1,4 +1,4 @@
-# Financial Analysis Dashboard (Orbann_ai)
+# LedgerLens
 
 **Live app:** [stock-financial-analyzer.vercel.app](https://stock-financial-analyzer.vercel.app)
 
@@ -32,6 +32,30 @@ persistent process to host a Streamlit server on. So the app was split into:
     ratios, generates the analysis, returns JSON.
   - `POST /api/report` — takes the ratios/analysis and returns a generated
     `.docx` file.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    FE["Next.js frontend\napp/page.tsx\nticker input, metric cards, DOCX download"]
+    A["api/analyze.py"]
+    R["api/report.py"]
+    Core["lib/finance_core.py\nStreamlit-free core logic"]
+    YF[(Yahoo Finance\nvia yahooquery)]
+    OR[(OpenRouter)]
+
+    FE -->|"GET /api/analyze?ticker=AAPL"| A
+    A --> Core
+    Core --> YF
+    Core -->|ratios + AI prompt| OR
+    OR -->|analysis text, or null + aiError| A
+    A -->|JSON| FE
+    FE -->|"POST /api/report\n(ratios + analysis)"| R
+    R --> Core
+    R -->|.docx file| FE
+```
+
+No rule-based fallback exists anywhere in this path — if the OpenRouter call fails, `analyze.py` returns `analysis: null` with an explicit `aiError` rather than any generated-looking text, so a failure can never be mistaken for a real AI response.
 
 ## Project structure
 
