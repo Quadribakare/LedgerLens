@@ -125,12 +125,6 @@ export default function Home() {
               onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
             />
 
-            <p className="mb-3 text-xs text-gray-500">
-              Analysis is always AI-generated via OpenRouter — there is no
-              rule-based fallback. If the AI call fails, you'll see an
-              explicit error instead of generated text.
-            </p>
-
             <button
               onClick={handleAnalyze}
               disabled={loading}
